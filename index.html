@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Seryn!</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --accent: #38bdf8; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        
+        #search { 
+            width: 100%; padding: 15px; border-radius: 12px; border: 2px solid #334155;
+            background: var(--card); color: white; font-size: 18px; outline: none;
+            box-sizing: border-box; transition: border-color 0.3s;
+        }
+        #search:focus { border-color: var(--accent); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; padding: 12px; color: var(--accent); text-transform: uppercase; font-size: 12px; letter-spacing: 1px; border-bottom: 2px solid #334155; }
+        td { padding: 15px 12px; border-bottom: 1px solid #334155; }
+        tr:nth-child(even) { background: rgba(255,255,255,0.03); }
+        
+        .artist-name { font-weight: bold; color: var(--accent); display: block; }
+        .song-title { font-size: 1.1em; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🎤 Karaoke Catalog</h1>
+        <p>Search for your favorite track below!</p>
+        <input type="text" id="search" placeholder="Type artist or song name..." autofocus>
+    </div>
+
+    <table id="songTable">
+        <thead>
+            <tr>
+                <th>Artist</th>
+                <th>Song Title</th>
+            </tr>
+        </thead>
+        <tbody id="list-target">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    const listTarget = document.getElementById('list-target');
+    const searchInput = document.getElementById('search');
+    let allSongs = [];
+
+    // 1. Fetch and Hydrate
+    async function loadSongs() {
+        try {
+            const response = await fetch('songs.json');
+            allSongs = await response.json();
+            renderTable(allSongs);
+        } catch (err) {
+            listTarget.innerHTML = "<tr><td colspan='2'>Error loading songs. Check if songs.json exists.</td></tr>";
+        }
+    }
+
+    // 2. Render function (Logic to create HTML strings)
+    function renderTable(data) {
+        const htmlString = data.map(item => `
+            <tr>
+                <td><span class="artist-name">${item.Artist}</span></td>
+                <td><span class="song-title">${item.Song}</span></td>
+            </tr>
+        `).join('');
+        listTarget.innerHTML = htmlString;
+    }
+
+    // 3. Filtering Logic
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const filtered = allSongs.filter(item => 
+            item.Artist.toLowerCase().includes(query) || 
+            item.Song.toLowerCase().includes(query)
+        );
+        renderTable(filtered);
+    });
+
+    // Initial load
+    loadSongs();
+</script>
+
+</body>
+</html>
